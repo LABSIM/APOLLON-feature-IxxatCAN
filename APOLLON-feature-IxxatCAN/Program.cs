@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APOLLON_TestCAN
+namespace Labsim.apollon
 {
     class Program
     {
         static void Main(string[] args)
         {
 
-            Labsim.apollon.backend.handle.ApollonActiveSeatHandle handle 
-                = new Labsim.apollon.backend.handle.ApollonActiveSeatHandle();
+            backend.handle.ApollonActiveSeatHandle handle 
+                = new backend.handle.ApollonActiveSeatHandle();
 
             handle.onHandleActivationRequested();
 

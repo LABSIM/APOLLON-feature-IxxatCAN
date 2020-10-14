@@ -27,6 +27,16 @@ namespace Labsim.apollon.backend.handle
 
             } /* enum EventType */
 
+            public enum EventArgType : byte
+            {
+
+                APOLLON_EVENT_ARG_ANGULAR_ACCELERATION = 0, // associated with APOLLON_EVENT_START event to provide accel value
+                APOLLON_EVENT_ARG_ANGULAR_SPEED_SATURATION = 1, // associated with APOLLON_EVENT_START event to provide speed value
+                APOLLON_EVENT_ARG_MAX_STIM_DURATION = 2, // associated with APOLLON_EVENT_START event to provide duration value
+                APOLLON_EVENT_ARG_UNKNOWN
+
+            } /* enum EventArgType */
+
             public enum FlagType : byte
             {
 
@@ -99,16 +109,25 @@ namespace Labsim.apollon.backend.handle
         public void BeginSession()
         {
 
-            // build up the transmitted data
-            this.TransmitData(
-                new CAN.Msg()
-                {
-                    info = new CAN.MsgInfo()
-                    {
-                        bEvent = (byte)CAN.EventType.APOLLON_EVENT_BEGINSESSION,
-                        bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
-                    },
-                    payload = null
+            // build up the transmitted data 
+
+            // v1.0 
+            //this.TransmitData(
+            //    new CAN.Msg()
+            //    {
+            //        info = new CAN.MsgInfo()
+            //        {
+            //            bEvent = (byte)CAN.EventType.APOLLON_EVENT_BEGINSESSION,
+            //            bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+            //        },
+            //        payload = null
+            //    }
+            //);
+
+            // v2.0 - raw
+            this.TransmitRawData(
+                new byte[] {
+                    (byte)CAN.EventType.APOLLON_EVENT_BEGINSESSION
                 }
             );
 
@@ -118,15 +137,24 @@ namespace Labsim.apollon.backend.handle
         {
 
             // build up the transmitted data
-            this.TransmitData(
-                new CAN.Msg()
-                {
-                    info = new CAN.MsgInfo()
-                    {
-                        bEvent = (byte)CAN.EventType.APOLLON_EVENT_ENDSESSION,
-                        bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
-                    },
-                    payload = null
+
+            // v1.0
+            //this.TransmitData(
+            //    new CAN.Msg()
+            //    {
+            //        info = new CAN.MsgInfo()
+            //        {
+            //            bEvent = (byte)CAN.EventType.APOLLON_EVENT_ENDSESSION,
+            //            bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+            //        },
+            //        payload = null
+            //    }
+            //);
+
+            // v2.0 - raw
+            this.TransmitRawData(
+                new byte[] {
+                    (byte)CAN.EventType.APOLLON_EVENT_ENDSESSION
                 }
             );
 
@@ -136,15 +164,24 @@ namespace Labsim.apollon.backend.handle
         {
 
             // build up the transmitted data
-            this.TransmitData(
-                new CAN.Msg()
-                {
-                    info = new CAN.MsgInfo()
-                    {
-                        bEvent = (byte)CAN.EventType.APOLLON_EVENT_BEGINTRIAL,
-                        bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
-                    },
-                    payload = null
+
+            // v1.0
+            //this.TransmitData(
+            //    new CAN.Msg()
+            //    {
+            //        info = new CAN.MsgInfo()
+            //        {
+            //            bEvent = (byte)CAN.EventType.APOLLON_EVENT_BEGINTRIAL,
+            //            bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+            //        },
+            //        payload = null
+            //    }
+            //);
+
+            // v2.0 - raw
+            this.TransmitRawData(
+                new byte[] {
+                    (byte)CAN.EventType.APOLLON_EVENT_BEGINTRIAL
                 }
             );
 
@@ -154,15 +191,24 @@ namespace Labsim.apollon.backend.handle
         {
 
             // build up the transmitted data
-            this.TransmitData(
-                new CAN.Msg()
-                {
-                    info = new CAN.MsgInfo()
-                    {
-                        bEvent = (byte)CAN.EventType.APOLLON_EVENT_ENDTRIAL,
-                        bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
-                    },
-                    payload = null
+
+            // v1.0
+            //this.TransmitData(
+            //    new CAN.Msg()
+            //    {
+            //        info = new CAN.MsgInfo()
+            //        {
+            //            bEvent = (byte)CAN.EventType.APOLLON_EVENT_ENDTRIAL,
+            //            bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+            //        },
+            //        payload = null
+            //    }
+            //);
+
+            // v2.0 - raw
+            this.TransmitRawData(
+                new byte[] {
+                    (byte)CAN.EventType.APOLLON_EVENT_ENDTRIAL
                 }
             );
 
@@ -172,24 +218,185 @@ namespace Labsim.apollon.backend.handle
         {
 
             // build up the transmitted data
-            this.TransmitData(
-                new CAN.Msg()
-                {
-                    info = new CAN.MsgInfo()
-                    {
-                        bEvent = (byte)CAN.EventType.APOLLON_EVENT_START,
-                        bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+
+            // v1.0
+            //this.TransmitData(
+            //    new CAN.Msg()
+            //    {
+            //        info = new CAN.MsgInfo()
+            //        {
+            //            bEvent = (byte)CAN.EventType.APOLLON_EVENT_START,
+            //            bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+            //        },
+            //        payload = ApollonAbstractCANHandle.Serialize(
+            //            new CAN.PayloadStartEvent()
+            //            {
+            //                dAngularAcceleration = AngularAcceleration,
+            //                dAngularSpeedSaturation = AngularSpeedSaturation,
+            //                dMaxStimDuration = MaxStimDuration
+            //            }
+            //        )
+            //    }
+            //);
+
+            // v2.0
+
+            // Prepare 6 bytes array to send (x3 times) :
+            // 0x04 0x00 bytes representation of (AngularAcceleration)
+            // 0x04 0x01 bytes representation of (AngularSpeedSaturation)
+            // 0x04 0x02 bytes representation of (MaxStimDuration)
+
+            byte[] 
+                angular_acceleration_msg = new byte[1 + 1 + 4],
+                angular_speed_saturation_msg = new byte[1 + 1 + 4],
+                max_stim_duration_msg = new byte[1 + 1 + 4];
+
+            // Allways 0x04
+
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventType.APOLLON_EVENT_START
                     },
-                    payload = ApollonAbstractCANHandle.Serialize(
-                        new CAN.PayloadStartEvent()
-                        {
-                            dAngularAcceleration = AngularAcceleration,
-                            dAngularSpeedSaturation = AngularSpeedSaturation,
-                            dMaxStimDuration = MaxStimDuration
-                        }
-                    )
-                }
+                srcOffset:
+                    0,
+                dst:
+                    angular_acceleration_msg,
+                dstOffset:
+                    0,
+                count: 
+                    1
             );
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventType.APOLLON_EVENT_START
+                    },
+                srcOffset:
+                    0,
+                dst:
+                    angular_speed_saturation_msg,
+                dstOffset:
+                    0,
+                count:
+                    1
+            );
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventType.APOLLON_EVENT_START
+                    },
+                srcOffset:
+                    0,
+                dst:
+                    max_stim_duration_msg,
+                dstOffset:
+                    0,
+                count:
+                    1
+            );
+
+            // Convert args types to their bytes representation
+
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventArgType.APOLLON_EVENT_ARG_ANGULAR_ACCELERATION // 0x00 : it's accel
+                    },
+                srcOffset:
+                    0,
+                dst:
+                    angular_acceleration_msg,
+                dstOffset:
+                    1,
+                count:
+                    1
+            );
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventArgType.APOLLON_EVENT_ARG_ANGULAR_SPEED_SATURATION // 0x01 : it's speed
+                    },
+                srcOffset:
+                    0,
+                dst:
+                    angular_speed_saturation_msg,
+                dstOffset:
+                    1,
+                count:
+                    1
+            );
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventArgType.APOLLON_EVENT_ARG_MAX_STIM_DURATION // 0x02 : it's duration
+                    },
+                srcOffset:
+                    0,
+                dst:
+                    max_stim_duration_msg,
+                dstOffset:
+                    1,
+                count:
+                    1
+            );
+
+            // Convert args values to their bytes representation
+
+            System.Buffer.BlockCopy(
+                src:
+                    System.BitConverter.GetBytes(
+                        System.Convert.ToSingle(
+                            AngularAcceleration
+                        )
+                    ),
+                srcOffset:
+                    0,
+                dst:
+                    angular_acceleration_msg,
+                dstOffset:
+                    2,
+                count:
+                    4
+            );
+            System.Buffer.BlockCopy(
+                src:
+                    System.BitConverter.GetBytes(
+                        System.Convert.ToSingle(
+                            AngularSpeedSaturation
+                        )
+                    ),
+                srcOffset:
+                    0,
+                dst:
+                    angular_speed_saturation_msg,
+                dstOffset:
+                    2,
+                count:
+                    4
+            );
+            System.Buffer.BlockCopy(
+                src:
+                    System.BitConverter.GetBytes(
+                        System.Convert.ToSingle(
+                            MaxStimDuration
+                        )
+                    ),
+                srcOffset:
+                    0,
+                dst:
+                    max_stim_duration_msg,
+                dstOffset:
+                    2,
+                count:
+                    4
+            );
+
+            // send messages
+            //System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
+            this.TransmitRawData(angular_acceleration_msg);
+            this.TransmitRawData(angular_speed_saturation_msg);
+            this.TransmitRawData(max_stim_duration_msg);
 
         } /* EndSession() */
 
@@ -197,15 +404,24 @@ namespace Labsim.apollon.backend.handle
         {
 
             // build up the transmitted data
-            this.TransmitData(
-                new CAN.Msg()
-                {
-                    info = new CAN.MsgInfo()
-                    {
-                        bEvent = (byte)CAN.EventType.APOLLON_EVENT_STOP,
-                        bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
-                    },
-                    payload = null
+
+            // v1.0
+            //this.TransmitData(
+            //    new CAN.Msg()
+            //    {
+            //        info = new CAN.MsgInfo()
+            //        {
+            //            bEvent = (byte)CAN.EventType.APOLLON_EVENT_STOP,
+            //            bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+            //        },
+            //        payload = null
+            //    }
+            //);
+
+            // v2.0 - raw
+            this.TransmitRawData(
+                new byte[] {
+                    (byte)CAN.EventType.APOLLON_EVENT_STOP
                 }
             );
 
@@ -215,15 +431,24 @@ namespace Labsim.apollon.backend.handle
         {
 
             // build up the transmitted data
-            this.TransmitData(
-                new CAN.Msg()
-                {
-                    info = new CAN.MsgInfo()
-                    {
-                        bEvent = (byte)CAN.EventType.APOLLON_EVENT_RESET,
-                        bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
-                    },
-                    payload = null
+
+            // v1.0
+            //this.TransmitData(
+            //    new CAN.Msg()
+            //    {
+            //        info = new CAN.MsgInfo()
+            //        {
+            //            bEvent = (byte)CAN.EventType.APOLLON_EVENT_RESET,
+            //            bFlags = (byte)CAN.FlagType.APOLLON_FLAG_NONE
+            //        },
+            //        payload = null
+            //    }
+            //);
+
+            // v2.0 - raw
+            this.TransmitRawData(
+                new byte[] {
+                    (byte)CAN.EventType.APOLLON_EVENT_RESET
                 }
             );
 

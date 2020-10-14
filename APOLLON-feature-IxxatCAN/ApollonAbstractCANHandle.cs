@@ -140,30 +140,47 @@ namespace Labsim.apollon.backend
                 this.m_CANScheduler = bal.OpenSocket(canNo, typeof(Ixxat.Vci4.Bal.Can.ICanScheduler)) as Ixxat.Vci4.Bal.Can.ICanScheduler;
 
                 // Initialize the message channel
+
+                // v1.0
+                //this.m_CANChannel.Initialize(
+                //    receiveFifoSize:
+                //        1024,
+                //    transmitFifoSize:
+                //        128,
+                //    exclusive:
+                //        false
+                //);
+
+                // v2.0
+                // dont need buffer as there isnt on ADwin side
                 this.m_CANChannel.Initialize(
-                    receiveFifoSize:
-                        1024,
+                    receiveFifoSize: 
+                        1,
                     transmitFifoSize:
-                        128,
+                        1,
                     exclusive:
-                        false
+                        true
                 );
 
-                // Get a message reader object
-                this.m_CANMessageReader = this.m_CANChannel.GetMessageReader();
+                // v1.0
+                //// Get a message reader object
+                //this.m_CANMessageReader = this.m_CANChannel.GetMessageReader();
 
-                // Initialize message reader
-                this.m_CANMessageReader.Threshold = 1;
-
-                // Create and assign the event that's set if at least one message was received.
-                this.m_RxEvent = new System.Threading.AutoResetEvent(false);
-                this.m_CANMessageReader.AssignEvent(this.m_RxEvent);
+                // v1.0
+                //// Initialize message reader
+                //this.m_CANMessageReader.Threshold = 1;
+                
+                // v1.0
+                //// Create and assign the event that's set if at least one message was received.
+                //this.m_RxEvent = new System.Threading.AutoResetEvent(false);
+                //this.m_CANMessageReader.AssignEvent(this.m_RxEvent);
 
                 // Get a message wrtier object
                 this.m_CANMessageWriter = this.m_CANChannel.GetMessageWriter();
 
-                // Initialize message writer
-                this.m_CANMessageWriter.Threshold = 1;
+                // v1.0
+                //// Initialize message writer
+                //this.m_CANMessageWriter.Threshold = 1;
 
                 // Activate the message channel
                 this.m_CANChannel.Activate();
@@ -172,12 +189,23 @@ namespace Labsim.apollon.backend
                 this.m_CANController = bal.OpenSocket(canNo, typeof(Ixxat.Vci4.Bal.Can.ICanControl)) as Ixxat.Vci4.Bal.Can.ICanControl;
 
                 // Initialize the CAN controller
+
+                // v1.0 
+                //this.m_CANController.InitLine(
+                //    operatingMode:
+                //        Ixxat.Vci4.Bal.Can.CanOperatingModes.Standard
+                //        | Ixxat.Vci4.Bal.Can.CanOperatingModes.Extended
+                //        | Ixxat.Vci4.Bal.Can.CanOperatingModes.ErrFrame,
+                //    bitrate:
+                //        Ixxat.Vci4.Bal.Can.CanBitrate.Cia125KBit
+                //);
+
+                // v2.0 
+                // Dont need extended mode (11 bits is enought)
                 this.m_CANController.InitLine(
-                    operatingMode:
-                        Ixxat.Vci4.Bal.Can.CanOperatingModes.Standard
-                        | Ixxat.Vci4.Bal.Can.CanOperatingModes.Extended
-                        | Ixxat.Vci4.Bal.Can.CanOperatingModes.ErrFrame,
-                    bitrate:
+                    operatingMode: 
+                        Ixxat.Vci4.Bal.Can.CanOperatingModes.Standard, 
+                    bitrate: 
                         Ixxat.Vci4.Bal.Can.CanBitrate.Cia125KBit
                 );
 
@@ -188,25 +216,27 @@ namespace Labsim.apollon.backend
                 //    + " }]"
                 //);
 
-                // Set the acceptance filter for std identifiers
-                this.m_CANController.SetAccFilter(
-                    select:
-                        Ixxat.Vci4.Bal.Can.CanFilter.Std,
-                    code:
-                        (uint)Ixxat.Vci4.Bal.Can.CanAccCode.All,
-                    mask:
-                        (uint)Ixxat.Vci4.Bal.Can.CanAccMask.All
-                );
+                // v1.0
+                //// Set the acceptance filter for std identifiers
+                //this.m_CANController.SetAccFilter(
+                //    select:
+                //        Ixxat.Vci4.Bal.Can.CanFilter.Std,
+                //    code:
+                //        (uint)Ixxat.Vci4.Bal.Can.CanAccCode.All,
+                //    mask:
+                //        (uint)Ixxat.Vci4.Bal.Can.CanAccMask.All
+                //);
 
-                // Set the acceptance filter for ext identifiers
-                this.m_CANController.SetAccFilter(
-                    select:
-                        Ixxat.Vci4.Bal.Can.CanFilter.Ext,
-                    code:
-                        (uint)Ixxat.Vci4.Bal.Can.CanAccCode.All,
-                    mask:
-                        (uint)Ixxat.Vci4.Bal.Can.CanAccMask.All
-                );
+                // v1.0
+                //// Set the acceptance filter for ext identifiers
+                //this.m_CANController.SetAccFilter(
+                //    select:
+                //        Ixxat.Vci4.Bal.Can.CanFilter.Ext,
+                //    code:
+                //        (uint)Ixxat.Vci4.Bal.Can.CanAccCode.All,
+                //    mask:
+                //        (uint)Ixxat.Vci4.Bal.Can.CanAccMask.All
+                //);
 
                 // Start the CAN controller
                 this.m_CANController.StartLine();
@@ -277,6 +307,35 @@ namespace Labsim.apollon.backend
             this.m_CANMessageWriter.SendMessage(canMsg);
 
         } /* TransmitData() */
+
+        protected void TransmitRawData(byte[] data)
+        {
+
+            // get factory & instanciate en emplty shell message
+            Ixxat.Vci4.IMessageFactory factory
+                = Ixxat.Vci4.VciServer.Instance().MsgFactory;
+            Ixxat.Vci4.Bal.Can.ICanMessage canMsg
+                = (Ixxat.Vci4.Bal.Can.ICanMessage)factory.CreateMsg(typeof(Ixxat.Vci4.Bal.Can.ICanMessage));
+
+            // configure the empty shell
+            canMsg.Identifier = 1; // Message ID
+            canMsg.TimeStamp = 0; // No delay
+            canMsg.ExtendedFrameFormat = false; // 11 bits
+            canMsg.RemoteTransmissionRequest = false;
+            canMsg.SelfReceptionRequest = false;  // do not show this message in the console window
+            canMsg.FrameType = Ixxat.Vci4.Bal.Can.CanMsgFrameType.Data; // Will allways be a data frame
+            canMsg.DataLength = (byte)data.Length;
+
+            // fill up the data  
+            for (int idx = 0; idx < data.Length; ++idx)
+            {
+                canMsg[idx] = data[idx];
+            }
+
+            // Write the CAN message into the transmit FIFO
+            this.m_CANMessageWriter.SendMessage(canMsg);
+
+        } /* TransmitRawData() */
 
         // This method is the works as receive thread.
         protected void AsynCANReaderCallback()

@@ -639,7 +639,7 @@ namespace Labsim.apollon.backend
                 System.Threading.Interlocked.Exchange(ref this.m_RxEnd, 1);
 
                 // wait for termination of receive thread
-                this.m_RxThread.Join();
+                //this.m_RxThread.Join();
 
                 // pull-up
                 //base.onHandleDeactivationRequested(sender, arg);

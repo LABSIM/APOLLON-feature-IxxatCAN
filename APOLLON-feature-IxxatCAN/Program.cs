@@ -22,8 +22,15 @@ namespace Labsim.apollon
             {
 
                 handle.BeginTrial();
-
-                handle.Start(0.1, 1.0, 10000.0);
+                
+                handle.Start(
+                    AngularAcceleration:
+                        /* rad/s^2 (SI) */ 0.025,
+                    AngularSpeedSaturation:
+                        /* rad/s (SI)   */ 1.0,
+                    MaxStimDuration:
+                        /* ms (SI)      */ 1000.25
+                );
 
                 handle.Stop();
 

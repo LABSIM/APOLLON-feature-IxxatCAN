@@ -47,58 +47,59 @@ namespace Labsim.apollon.backend.handle
 
             #endregion
 
-            #region messages
+            // v1.0
+            //#region messages
 
-            [System.Runtime.InteropServices.StructLayout(
-                System.Runtime.InteropServices.LayoutKind.Sequential,
-                CharSet = System.Runtime.InteropServices.CharSet.Ansi,
-                Pack = 1
-            )]
-            public struct MsgInfo
-            {
+            //[System.Runtime.InteropServices.StructLayout(
+            //    System.Runtime.InteropServices.LayoutKind.Sequential,
+            //    CharSet = System.Runtime.InteropServices.CharSet.Ansi,
+            //    Pack = 1
+            //)]
+            //public struct MsgInfo
+            //{
 
-                public byte bEvent; // type (see EventType::APOLLON_EVENT_* constants)
-                public byte bFlags; // additional flags (see FlagType::APOLLON_FLAG_* constants)
+            //    public byte bEvent; // type (see EventType::APOLLON_EVENT_* constants)
+            //    public byte bFlags; // additional flags (see FlagType::APOLLON_FLAG_* constants)
 
-            }; /* struct MsgInfo */
+            //}; /* struct MsgInfo */
 
-            [System.Runtime.InteropServices.StructLayout(
-                System.Runtime.InteropServices.LayoutKind.Sequential,
-                CharSet = System.Runtime.InteropServices.CharSet.Ansi,
-                Pack = 1
-            )]
-            public struct Msg
-            {
+            //[System.Runtime.InteropServices.StructLayout(
+            //    System.Runtime.InteropServices.LayoutKind.Sequential,
+            //    CharSet = System.Runtime.InteropServices.CharSet.Ansi,
+            //    Pack = 1
+            //)]
+            //public struct Msg
+            //{
 
-                public MsgInfo info; // message information
+            //    public MsgInfo info; // message information
 
-                [System.Runtime.InteropServices.MarshalAs(
-                    System.Runtime.InteropServices.UnmanagedType.ByValArray,
-                    ArraySubType = System.Runtime.InteropServices.UnmanagedType.U1
-                )]
-                public byte[] payload; // payload type is dependant of MsgInfo.bEvent
+            //    [System.Runtime.InteropServices.MarshalAs(
+            //        System.Runtime.InteropServices.UnmanagedType.ByValArray,
+            //        ArraySubType = System.Runtime.InteropServices.UnmanagedType.U1
+            //    )]
+            //    public byte[] payload; // payload type is dependant of MsgInfo.bEvent
 
-            }; /* struct Msg */
+            //}; /* struct Msg */
 
-            #endregion
+            //#endregion
 
-            #region payloads
+            //#region payloads
 
-            [System.Runtime.InteropServices.StructLayout(
-                System.Runtime.InteropServices.LayoutKind.Sequential,
-                CharSet = System.Runtime.InteropServices.CharSet.Ansi,
-                Pack = 1
-            )]
-            public struct PayloadStartEvent
-            {
+            //[System.Runtime.InteropServices.StructLayout(
+            //    System.Runtime.InteropServices.LayoutKind.Sequential,
+            //    CharSet = System.Runtime.InteropServices.CharSet.Ansi,
+            //    Pack = 1
+            //)]
+            //public struct PayloadStartEvent
+            //{
 
-                public System.Double dAngularAcceleration;      // rad/s^2 (SI)
-                public System.Double dAngularSpeedSaturation;   // rad/s (SI)
-                public System.Double dMaxStimDuration;          // ms (SI)
+            //    public System.Double dAngularAcceleration;      // rad/s^2 (SI)
+            //    public System.Double dAngularSpeedSaturation;   // rad/s (SI)
+            //    public System.Double dMaxStimDuration;          // ms (SI)
 
-            }; /* struct PayloadStartEvent */
+            //}; /* struct PayloadStartEvent */
 
-            #endregion
+            //#endregion
 
         }; /* CAN */
 
@@ -342,7 +343,7 @@ namespace Labsim.apollon.backend.handle
             );
 
             // Convert args values to their bytes representation
-
+      
             System.Buffer.BlockCopy(
                 src:
                     System.BitConverter.GetBytes(

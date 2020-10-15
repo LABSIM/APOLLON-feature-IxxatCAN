@@ -25,17 +25,21 @@ namespace Labsim.apollon.backend
         // Reference to the message writer of the CAN message channel.
         private Ixxat.Vci4.Bal.Can.ICanMessageWriter m_CANMessageWriter;
 
+        // v1.0
         // Reference to the message reader of the CAN message channel.
-        private Ixxat.Vci4.Bal.Can.ICanMessageReader m_CANMessageReader;
+        //private Ixxat.Vci4.Bal.Can.ICanMessageReader m_CANMessageReader;
 
+        // v1.0
         // Thread that handles the message reception.
-        private System.Threading.Thread m_RxThread;
+        //private System.Threading.Thread m_RxThread;
 
+        // v1.0
         // Quit flag for the receive thread.
         private long m_RxEnd = 0;
 
+        // v1.0
         // Event that's set if at least one message was received.
-        private System.Threading.AutoResetEvent m_RxEvent;
+        //private System.Threading.AutoResetEvent m_RxEvent;
 
         #endregion
 
@@ -337,40 +341,41 @@ namespace Labsim.apollon.backend
 
         } /* TransmitRawData() */
 
-        // This method is the works as receive thread.
-        protected void AsynCANReaderCallback()
-        {
+        // v1.0
+        //// This method is the works as receive thread.
+        //protected void AsynCANReaderCallback()
+        //{
 
-            // buffer
-            Ixxat.Vci4.Bal.Can.ICanMessage[] msgArray;
+        //    // buffer
+        //    Ixxat.Vci4.Bal.Can.ICanMessage[] msgArray;
 
-            // loop
-            do
-            {
+        //    // loop
+        //    do
+        //    {
 
-                // Wait 100 msec for a message reception
-                if (this.m_RxEvent.WaitOne(100, false))
-                {
+        //        // Wait 100 msec for a message reception
+        //        if (this.m_RxEvent.WaitOne(100, false))
+        //        {
 
-                    // take all messages
-                    if (this.m_CANMessageReader.ReadMessages(out msgArray) > 0)
-                    {
+        //            // take all messages
+        //            if (this.m_CANMessageReader.ReadMessages(out msgArray) > 0)
+        //            {
 
-                        // flush FIFO
-                        foreach (Ixxat.Vci4.Bal.Can.ICanMessage entry in msgArray)
-                        {
+        //                // flush FIFO
+        //                foreach (Ixxat.Vci4.Bal.Can.ICanMessage entry in msgArray)
+        //                {
 
-                            // do nothing actually see Frank for status ?
+        //                    // do nothing actually see Frank for status ?
 
-                        } /* foreach() */
+        //                } /* foreach() */
 
-                    } /* if() */
+        //            } /* if() */
 
-                } /* if() */
+        //        } /* if() */
 
-            } while (0 == this.m_RxEnd);
+        //    } while (0 == this.m_RxEnd);
 
-        } /* AsynCANReaderCallback() */
+        //} /* AsynCANReaderCallback() */
 
         #endregion
 
@@ -568,8 +573,9 @@ namespace Labsim.apollon.backend
             // Dispose all hold VCI objects.
             //
 
+            // v1.0
             // Dispose message reader
-            ApollonAbstractCANHandle.DisposeVciObject(this.m_CANMessageReader);
+            //ApollonAbstractCANHandle.DisposeVciObject(this.m_CANMessageReader);
 
             // Dispose message writer 
             ApollonAbstractCANHandle.DisposeVciObject(this.m_CANMessageWriter);

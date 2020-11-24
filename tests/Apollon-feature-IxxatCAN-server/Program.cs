@@ -193,7 +193,7 @@ namespace Labsim.apollon.feature.IxxatCAN
 
             } /* using */
 
-            //close
+            // close
             pipeClient.WaitForExit();
             pipeClient.Close();
             Console.WriteLine(

@@ -2,10 +2,11 @@
 using System.Linq;
 
 // avoid namespace pollution
-namespace Labsim.apollon.backend
+namespace Labsim.apollon.feature.IxxatCAN
 {
 
-    public abstract class ApollonAbstractCANHandle
+    public abstract class AbstractCANHandle
+        : System.IDisposable
     {
 
         #region CAN members
@@ -46,7 +47,7 @@ namespace Labsim.apollon.backend
         #region CAN device selection
 
         // Select the first CAN adapter.
-        private void SelectDevice()
+        public void SelectDevice()
         {
 
             // temporary
@@ -75,7 +76,7 @@ namespace Labsim.apollon.backend
                 // print the bus type, controller type, device name and serial number of first found controller
                 Ixxat.Vci4.IVciCtrlInfo info = this.m_VCIDevice.Equipment[0];
                 object serialNumberGuid = this.m_VCIDevice.UniqueHardwareId;
-                string serialNumberText = ApollonAbstractCANHandle.GetSerialNumberText(ref serialNumberGuid);
+                string serialNumberText = AbstractCANHandle.GetSerialNumberText(ref serialNumberGuid);
                 //UnityEngine.Debug.Log(
                 //    "<color=Blue>Info: </color> ApollonAbstractCANHandle.SelectDevice() : found CAN device [{ BusType: "
                 //    + info.BusType
@@ -105,13 +106,13 @@ namespace Labsim.apollon.backend
             {
 
                 // Dispose device manager ; it's no longer needed.
-                ApollonAbstractCANHandle.DisposeVciObject(deviceManager);
+                AbstractCANHandle.DisposeVciObject(deviceManager);
 
                 // Dispose device list ; it's no longer needed.
-                ApollonAbstractCANHandle.DisposeVciObject(deviceList);
+                AbstractCANHandle.DisposeVciObject(deviceList);
 
                 // Dispose device list ; it's no longer needed.
-                ApollonAbstractCANHandle.DisposeVciObject(deviceEnum);
+                AbstractCANHandle.DisposeVciObject(deviceEnum);
 
             } /* try */
 
@@ -123,7 +124,7 @@ namespace Labsim.apollon.backend
 
         // Opens the specified socket, creates a message channel, initializes
         // and starts the CAN controller.
-        private bool InitSocket(System.Byte canNo)
+        public bool InitSocket(System.Byte canNo)
         {
 
             // temp
@@ -268,7 +269,7 @@ namespace Labsim.apollon.backend
             {
 
                 // Dispose bus access layer
-                ApollonAbstractCANHandle.DisposeVciObject(bal);
+                AbstractCANHandle.DisposeVciObject(bal);
 
             } /* try */
 
@@ -292,7 +293,7 @@ namespace Labsim.apollon.backend
                 = (Ixxat.Vci4.Bal.Can.ICanMessage)factory.CreateMsg(typeof(Ixxat.Vci4.Bal.Can.ICanMessage));
 
             // build up the data from object serializing
-            byte[] data = ApollonAbstractCANHandle.Serialize<T>(obj);
+            byte[] data = AbstractCANHandle.Serialize<T>(obj);
 
             // configure the empty shell
             canMsg.TimeStamp = 0;
@@ -562,9 +563,18 @@ namespace Labsim.apollon.backend
         #endregion
 
         // ctor     
-        public ApollonAbstractCANHandle()
+        public AbstractCANHandle()
             : base()
         { }
+        
+        // Dispose pattern
+        public void Dispose()
+        {
+
+            this.Dispose(true);
+            System.GC.SuppressFinalize(this);
+
+        } /* Dispose() */
 
         protected void Dispose(bool bDisposing = true)
         {
@@ -578,84 +588,84 @@ namespace Labsim.apollon.backend
             //ApollonAbstractCANHandle.DisposeVciObject(this.m_CANMessageReader);
 
             // Dispose message writer 
-            ApollonAbstractCANHandle.DisposeVciObject(this.m_CANMessageWriter);
+            AbstractCANHandle.DisposeVciObject(this.m_CANMessageWriter);
 
             // Dispose CAN channel
-            ApollonAbstractCANHandle.DisposeVciObject(this.m_CANChannel);
+            AbstractCANHandle.DisposeVciObject(this.m_CANChannel);
 
             // Dispose CAN controller
-            ApollonAbstractCANHandle.DisposeVciObject(this.m_CANController);
+            AbstractCANHandle.DisposeVciObject(this.m_CANController);
 
             // Dispose VCI device
-            ApollonAbstractCANHandle.DisposeVciObject(this.m_VCIDevice);
+            AbstractCANHandle.DisposeVciObject(this.m_VCIDevice);
 
         } /* Dispose(bool) */
 
-        #region event handling 
+        //#region event handling 
 
-        public /*override*/ void onHandleActivationRequested(/*object sender, ApollonBackendManager.EngineHandleEventArgs arg*/)
-        {
+        //public /*override*/ void onHandleActivationRequested(/*object sender, ApollonBackendManager.EngineHandleEventArgs arg*/)
+        //{
 
-            // check
-            //if (this.ID == arg.HandleID)
-            //{
+        //    // check
+        //    //if (this.ID == arg.HandleID)
+        //    //{
 
-                // select device
-                this.SelectDevice();
+        //        // select device
+        //        this.SelectDevice();
 
-                // log
-                //UnityEngine.Debug.Log(
-                //    "<color=Blue>Info: </color> ApollonAbstractCANHandle.onHandleActivationRequested() : device selected"
-                //);
+        //        // log
+        //        //UnityEngine.Debug.Log(
+        //        //    "<color=Blue>Info: </color> ApollonAbstractCANHandle.onHandleActivationRequested() : device selected"
+        //        //);
 
-                // init connection
-                if (!this.InitSocket(0))
-                {
+        //        // init connection
+        //        if (!this.InitSocket(0))
+        //        {
 
-                    // log
-                    //UnityEngine.Debug.LogError(
-                    //    "<color=Red>Error: </color> ApollonAbstractCANHandle.onHandleActivationRequested() : failed to initialize connection, exit"
-                    //);
+        //            // log
+        //            //UnityEngine.Debug.LogError(
+        //            //    "<color=Red>Error: </color> ApollonAbstractCANHandle.onHandleActivationRequested() : failed to initialize connection, exit"
+        //            //);
 
-                    // abort
-                    this.Dispose();
+        //            // abort
+        //            this.Dispose();
 
-                } /* if() */
+        //        } /* if() */
 
-                // bind & start the receive thread
-                //this.m_RxThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.AsynCANReaderCallback));
-                //this.m_RxThread.Start();
+        //        // bind & start the receive thread
+        //        //this.m_RxThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.AsynCANReaderCallback));
+        //        //this.m_RxThread.Start();
 
-                // pull-up
-                //base.onHandleActivationRequested(sender, arg);
+        //        // pull-up
+        //        //base.onHandleActivationRequested(sender, arg);
 
-            //} /* if() */
+        //    //} /* if() */
 
-        } /* onHandleActivationRequested() */
+        //} /* onHandleActivationRequested() */
 
-        // unregistration
-        public /*override*/ void onHandleDeactivationRequested(/*object sender, ApollonBackendManager.EngineHandleEventArgs arg*/)
-        {
+        //// unregistration
+        //public /*override*/ void onHandleDeactivationRequested(/*object sender, ApollonBackendManager.EngineHandleEventArgs arg*/)
+        //{
 
-            // check
-            //if (this.ID == arg.HandleID)
-            //{
+        //    // check
+        //    //if (this.ID == arg.HandleID)
+        //    //{
 
-                // tell receive thread to quit
-                System.Threading.Interlocked.Exchange(ref this.m_RxEnd, 1);
+        //        // tell receive thread to quit
+        //        System.Threading.Interlocked.Exchange(ref this.m_RxEnd, 1);
 
-                // wait for termination of receive thread
-                //this.m_RxThread.Join();
+        //        // wait for termination of receive thread
+        //        //this.m_RxThread.Join();
 
-                // pull-up
-                //base.onHandleDeactivationRequested(sender, arg);
+        //        // pull-up
+        //        //base.onHandleDeactivationRequested(sender, arg);
 
-            //} /* if() */
+        //    //} /* if() */
 
-        } /* onHandleDeactivationRequested() */
+        //} /* onHandleDeactivationRequested() */
 
-        #endregion
+        //#endregion
 
-    } /* class ApollonAbstractCANHandle */
+    } /* class AbstractCANHandle */
 
 } /* } namespace */

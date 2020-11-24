@@ -1,9 +1,9 @@
 ﻿// avoid namespace pollution
-namespace Labsim.apollon.backend.handle
+namespace Labsim.apollon.feature.IxxatCAN.handle
 {
 
-    public class ApollonActiveSeatHandle
-        : ApollonAbstractCANHandle
+    public class ActiveSeatHandle
+        : AbstractCANHandle
     {
 
         #region CAN messages definition
@@ -458,9 +458,10 @@ namespace Labsim.apollon.backend.handle
         #endregion
 
         // ctor
-        public ApollonActiveSeatHandle()
+        public ActiveSeatHandle()
             : base()
         {
+
             //this.m_handleID = ApollonBackendManager.HandleIDType.ApollonActiveSeatHandle;
         }
 

@@ -1,208 +1,169 @@
 ﻿using System;
-using System.IO;
-using System.IO.Pipes;
-using System.Diagnostics;
 
 namespace Labsim.apollon.feature.IxxatCAN
 {
+
     class Program
     {
-        static void Main(string[] args)
+
+        enum messageID : short
         {
+            NoMoreData = -1,
+            BeginSession,
+            EndSession,
+            BeginTrial,
+            EndTrial,
+            Start,
+            Stop,
+            Reset
+        }
 
+        public static int Main(String[] args)
+        {
+            // Set the TcpListener on port 13000.
+            Int32 port = 8888;
+            System.Net.IPAddress localAddr = System.Net.IPAddress.Loopback;
+
+            // TcpListener server = new TcpListener(port);
+            var server = new System.Net.Sockets.TcpListener(localAddr, port);
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-server] -- INFO : Server mode"
+                + " - [Apollon-feature-IxxatCAN-server] -- INFO : server created ["
+                + localAddr 
+                + ":"
+                + port
+                + "]."
             );
 
-            // our child client process
-            Process pipeClient = new Process();
-
-            using (
-                AnonymousPipeServerStream pipeServer
-                    = new AnonymousPipeServerStream(
-                        PipeDirection.Out,
-                        HandleInheritability.Inheritable
-                    )
-            ) {
-
-                Console.WriteLine(
-                    DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : Pipe server instantiated ! Current TransmissionMode: {0}.",
-                    pipeServer.TransmissionMode
-                );
-
-                // Pass the client process a handle to the server.
-                pipeClient.StartInfo.FileName = "Apollon-feature-IxxatCAN-client.exe";
-                pipeClient.StartInfo.Arguments = pipeServer.GetClientHandleAsString();
-                pipeClient.StartInfo.UseShellExecute = false;
-
-                Console.WriteLine(
-                    DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : Pipe client instantiated & initialized ! starting it."
-                );
-
-                // start client process & dispose local server copy
-                pipeClient.Start();
-                pipeServer.DisposeLocalCopyOfClientHandle();
-                
-                // simulate the "classical experiment scenario"
-
-                // encapsulate
-                try
-                {
-                    // Read user input and send that to the client process.
-                    using (StreamWriter sw = new StreamWriter(pipeServer))
-                    {
-                        // mark as sutoFlush
-                        sw.AutoFlush = true;
-                    
-                        // Send a 'sync message' and wait for client to receive it. 
-                        sw.WriteLine("BeginSession");
-                        Console.WriteLine(
-                            DateTime.Now.ToString("HH:mm:ss.ffffff")
-                            + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [BeginSession]."
-                        );
-                        pipeServer.WaitForPipeDrain();
-                        Console.WriteLine(
-                            DateTime.Now.ToString("HH:mm:ss.ffffff")
-                            + " - [Apollon-feature-IxxatCAN-server] -- INFO : pipe drained."
-                        );
-                        
-                        // auto seed
-                        Random autoRand = new Random();
-
-                        // simple loop
-                        for (uint i = 0; i < 5; ++i)
-                        {
-
-                            // -------------------------------------------------------------------------------- //
-
-                            sw.WriteLine("BeginTrial");
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [BeginTrial]."
-                            );
-                            pipeServer.WaitForPipeDrain();
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : pipe drained."
-                            );
-
-                            // -------------------------------------------------------------------------------- //
-
-                            System.Double
-                                /* 1st - rad/s^2 (SI) */
-                                dAngularAcceleration
-                                    = autoRand.NextDouble(),
-                                /* 2nd - rad/s (SI) */
-                                dAngularSpeedSaturation
-                                    = autoRand.NextDouble(),
-                                /* 3rd - ms (SI) */
-                                dMaxStimDuration
-                                    = autoRand.NextDouble();
-
-                            sw.WriteLine("Start");
-                            sw.WriteLine(dAngularAcceleration);
-                            sw.WriteLine(dAngularSpeedSaturation);
-                            sw.WriteLine(dMaxStimDuration);
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Start] with args [dAngularAcceleration:"
-                                + dAngularAcceleration
-                                + "], [dAngularSpeedSaturation:"
-                                + dAngularSpeedSaturation
-                                + "], [dMaxStimDuration:"
-                                + dMaxStimDuration
-                                + "] !"
-                            );
-                            pipeServer.WaitForPipeDrain();
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : pipe drained."
-                            );
-
-                            // -------------------------------------------------------------------------------- //
-
-                            sw.WriteLine("Stop");
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Stop]."
-                            );
-                            pipeServer.WaitForPipeDrain();
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : pipe drained."
-                            );
-
-                            // -------------------------------------------------------------------------------- //
-
-                            sw.WriteLine("Reset");
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Reset]."
-                            );
-                            pipeServer.WaitForPipeDrain();
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : pipe drained."
-                            );
-
-                            // -------------------------------------------------------------------------------- //
-
-                            sw.WriteLine("EndTrial");
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [EndTrial]."
-                            );
-                            pipeServer.WaitForPipeDrain();
-                            Console.WriteLine(
-                                DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-server] -- INFO : pipe drained."
-                            );
-
-                            // -------------------------------------------------------------------------------- //
-
-                        } /* for() */
-
-                        sw.WriteLine("EndSession");
-                        Console.WriteLine(
-                            DateTime.Now.ToString("HH:mm:ss.ffffff")
-                            + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [EndSession]."
-                        );
-                        pipeServer.WaitForPipeDrain();
-                        Console.WriteLine(
-                            DateTime.Now.ToString("HH:mm:ss.ffffff")
-                            + " - [Apollon-feature-IxxatCAN-server] -- INFO : pipe drained."
-                        );
-
-                    } /* using */
-                }
-                catch (IOException e)
-                {
-
-                    // Catch the IOException that is raised if the pipe is broken
-                    // or disconnected.
-                    Console.WriteLine(
-                        DateTime.Now.ToString("HH:mm:ss.ffffff")
-                        + " - [Apollon-feature-IxxatCAN-server] -- ERROR : {0}", 
-                        e.Message
-                    );
-
-                } /* try() */
-
-            } /* using */
-
-            // close
-            pipeClient.WaitForExit();
-            pipeClient.Close();
+            // Start listening for client requests.
+            server.Start();
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-server] -- INFO : Client quit. Server terminating."
+                + " - [Apollon-feature-IxxatCAN-server] -- INFO : server started"
             );
+
+            // Perform a blocking call to accept requests.
+            // You could also use server.AcceptSocket() here.
+            System.Net.Sockets.TcpClient client = server.AcceptTcpClient();
+
+            //System.Net.Sockets.TcpClient client = null;
+            //using (var acceptTask = server.AcceptTcpClientAsync())
+            //{
+
+            //    Console.WriteLine(
+            //        DateTime.Now.ToString("HH:mm:ss.ffffff")
+            //        + " - [Apollon-feature-IxxatCAN-server] -- INFO : server is waiting for connection, launch client."
+            //    );
+
+            //    // launch client process
+
+            //    // wait for client completion 
+            //    acceptTask.Wait();
+            //    client = acceptTask.Result;
+
+            //    Console.WriteLine(
+            //        DateTime.Now.ToString("HH:mm:ss.ffffff")
+            //        + " - [Apollon-feature-IxxatCAN-server] -- INFO : accepted client ["
+            //        + client.Client.LocalEndPoint
+            //        + "]."
+            //    );
+            //}
+
+            // Get a stream object for reading and writing
+            System.Net.Sockets.NetworkStream stream = client.GetStream();
             
-        } /* static void Main() */
+            // begin
+            stream.WriteByte(System.Convert.ToByte(messageID.BeginSession));
+            Console.WriteLine(
+                DateTime.Now.ToString("HH:mm:ss.ffffff")
+                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [BeginSession]."
+            );
 
-    } /* class Program*/
+            // auto seed
+            Random autoRand = new Random();
+
+            // simple loop
+            for (uint i = 0; i < 5; ++i)
+            {
+
+                // -------------------------------------------------------------------------------- //
+
+                stream.WriteByte(System.Convert.ToByte(messageID.BeginTrial));
+                Console.WriteLine(
+                    DateTime.Now.ToString("HH:mm:ss.ffffff")
+                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [BeginTrial]."
+                );
+
+                // -------------------------------------------------------------------------------- //
+
+                System.Double
+                    /* 1st - rad/s^2 (SI) */
+                    dAngularAcceleration
+                        = autoRand.NextDouble(),
+                    /* 2nd - rad/s (SI) */
+                    dAngularSpeedSaturation
+                        = autoRand.NextDouble(),
+                    /* 3rd - ms (SI) */
+                    dMaxStimDuration
+                        = autoRand.NextDouble();
+
+                stream.WriteByte(System.Convert.ToByte(messageID.Start));
+                stream.Write(System.BitConverter.GetBytes(dAngularAcceleration),0,8);
+                stream.Write(System.BitConverter.GetBytes(dAngularSpeedSaturation),0,8);
+                stream.Write(System.BitConverter.GetBytes(dMaxStimDuration),0,8);
+                Console.WriteLine(
+                    DateTime.Now.ToString("HH:mm:ss.ffffff")
+                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Start] with args [dAngularAcceleration:"
+                    + dAngularAcceleration
+                    + "], [dAngularSpeedSaturation:"
+                    + dAngularSpeedSaturation
+                    + "], [dMaxStimDuration:"
+                    + dMaxStimDuration
+                    + "] !"
+                );
+
+                // -------------------------------------------------------------------------------- //
+
+                stream.WriteByte(System.Convert.ToByte(messageID.Stop));
+                Console.WriteLine(
+                    DateTime.Now.ToString("HH:mm:ss.ffffff")
+                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Stop]."
+                );
+
+                // -------------------------------------------------------------------------------- //
+
+                stream.WriteByte(System.Convert.ToByte(messageID.Reset));
+                Console.WriteLine(
+                    DateTime.Now.ToString("HH:mm:ss.ffffff")
+                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Reset]."
+                );
+
+                // -------------------------------------------------------------------------------- //
+
+                stream.WriteByte(System.Convert.ToByte(messageID.EndTrial));
+                Console.WriteLine(
+                    DateTime.Now.ToString("HH:mm:ss.ffffff")
+                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [EndTrial]."
+                );
+
+                // -------------------------------------------------------------------------------- //
+
+            } /* for() */
+
+            stream.WriteByte(System.Convert.ToByte(messageID.EndSession));
+            Console.WriteLine(
+                DateTime.Now.ToString("HH:mm:ss.ffffff")
+                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [EndSession]."
+            );
+
+            // end
+            stream.Close();
+            server.Stop();
+            Console.ReadLine();
+            return 0;
+
+        } /* static Main */
+
+    } /* class Program */
 
 }/* namespace */

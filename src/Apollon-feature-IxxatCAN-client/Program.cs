@@ -174,7 +174,6 @@ namespace Labsim.apollon.feature.IxxatCAN
             // stop
             stream.Close();
             client.Close();
-            Console.ReadLine();
             return 0;
 
         } /* static Main */

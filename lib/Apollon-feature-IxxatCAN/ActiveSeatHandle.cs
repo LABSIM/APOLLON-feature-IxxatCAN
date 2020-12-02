@@ -33,6 +33,7 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
                 APOLLON_EVENT_ARG_ANGULAR_ACCELERATION = 0, // associated with APOLLON_EVENT_START event to provide accel value
                 APOLLON_EVENT_ARG_ANGULAR_SPEED_SATURATION = 1, // associated with APOLLON_EVENT_START event to provide speed value
                 APOLLON_EVENT_ARG_MAX_STIM_DURATION = 2, // associated with APOLLON_EVENT_START event to provide duration value
+                APOLLON_EVENT_ARG_ACQUITTAL = 4, // associated with APOLLON_EVENT_START event to provide acquittal
                 APOLLON_EVENT_ARG_UNKNOWN
 
             } /* enum EventArgType */
@@ -250,7 +251,8 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
             byte[] 
                 angular_acceleration_msg = new byte[1 + 1 + 4],
                 angular_speed_saturation_msg = new byte[1 + 1 + 4],
-                max_stim_duration_msg = new byte[1 + 1 + 4];
+                max_stim_duration_msg = new byte[1 + 1 + 4],
+                acquittal_msg = new byte[1 + 1];
 
             // Allways 0x04
 
@@ -291,6 +293,20 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
                     0,
                 dst:
                     max_stim_duration_msg,
+                dstOffset:
+                    0,
+                count:
+                    1
+            );
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventType.APOLLON_EVENT_START
+                    },
+                srcOffset:
+                    0,
+                dst:
+                    acquittal_msg,
                 dstOffset:
                     0,
                 count:
@@ -341,9 +357,23 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
                 count:
                     1
             );
-
+            System.Buffer.BlockCopy(
+                src:
+                    new byte[] {
+                        (byte)CAN.EventArgType.APOLLON_EVENT_ARG_ACQUITTAL // 0x04 : it's start acq
+                    },
+                srcOffset:
+                    0,
+                dst:
+                    acquittal_msg,
+                dstOffset:
+                    1,
+                count:
+                    1
+            );
+            
             // Convert args values to their bytes representation
-      
+
             System.Buffer.BlockCopy(
                 src:
                     System.BitConverter.GetBytes(
@@ -398,6 +428,7 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
             this.TransmitRawData(angular_acceleration_msg);
             this.TransmitRawData(angular_speed_saturation_msg);
             this.TransmitRawData(max_stim_duration_msg);
+            this.TransmitRawData(acquittal_msg);
 
         } /* EndSession() */
 

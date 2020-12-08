@@ -21,20 +21,20 @@ namespace Labsim.apollon.feature.IxxatCAN
          
             (handle as handle.ActiveSeatHandle).BeginSession();
 
-            for (uint i = 0; i < 5; ++i)
+            for (uint i = 0; i < 10; ++i)
             {
 
                 (handle as handle.ActiveSeatHandle).BeginTrial();
-
+                
                 (handle as handle.ActiveSeatHandle).Start(
                     AngularAcceleration:
-                        /* rad/s^2 (SI) */ 0.025,
+                        /* rad/s^2 (SI) */ 6.8 + i,
                     AngularSpeedSaturation:
-                        /* rad/s (SI)   */ 1.0,
+                        /* rad/s (SI)   */ -2.5 + i,
                     MaxStimDuration:
-                        /* ms (SI)      */ 1000.25
+                        /* ms (SI)      */ 2.70 + i
                 );
-
+              
                 (handle as handle.ActiveSeatHandle).Stop();
 
                 (handle as handle.ActiveSeatHandle).Reset();

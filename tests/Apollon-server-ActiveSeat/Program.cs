@@ -1,8 +1,7 @@
 ﻿using System;
 
 namespace Labsim.apollon
-{
-
+{ 
     class Program
     {
 
@@ -34,7 +33,7 @@ namespace Labsim.apollon
             //var server = new System.Net.Sockets.TcpListener(localAddr, port);
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-server] -- INFO : server created ["
+                + " - [Apollon-server-ActiveSeat] -- INFO : server created ["
                 + serviceEndPoint
                 + "]."
             );
@@ -43,7 +42,7 @@ namespace Labsim.apollon
             server.Start();
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-server] -- INFO : server started"
+                + " - [Apollon-server-ActiveSeat] -- INFO : server started"
             );
 
             // Perform a blocking call to accept requests.
@@ -56,7 +55,7 @@ namespace Labsim.apollon
 
             //    Console.WriteLine(
             //        DateTime.Now.ToString("HH:mm:ss.ffffff")
-            //        + " - [Apollon-feature-IxxatCAN-server] -- INFO : server is waiting for connection, launch client."
+            //        + " - [Apollon-server-ActiveSeat] -- INFO : server is waiting for connection, launch client."
             //    );
 
             //    // launch client process
@@ -67,7 +66,7 @@ namespace Labsim.apollon
 
             //    Console.WriteLine(
             //        DateTime.Now.ToString("HH:mm:ss.ffffff")
-            //        + " - [Apollon-feature-IxxatCAN-server] -- INFO : accepted client ["
+            //        + " - [Apollon-server-ActiveSeat] -- INFO : accepted client ["
             //        + client.Client.LocalEndPoint
             //        + "]."
             //    );
@@ -75,12 +74,12 @@ namespace Labsim.apollon
 
             // Get a stream object for reading and writing
             System.Net.Sockets.NetworkStream stream = client.GetStream();
-            
+
             // begin
             stream.WriteByte(System.Convert.ToByte(messageID.BeginSession));
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [BeginSession]."
+                + " - [Apollon-server-ActiveSeat] -- INFO : sended [BeginSession]."
             );
 
             // auto seed
@@ -95,7 +94,7 @@ namespace Labsim.apollon
                 stream.WriteByte(System.Convert.ToByte(messageID.BeginTrial));
                 Console.WriteLine(
                     DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [BeginTrial]."
+                    + " - [Apollon-server-ActiveSeat] -- INFO : sended [BeginTrial]."
                 );
 
                 // -------------------------------------------------------------------------------- //
@@ -112,12 +111,12 @@ namespace Labsim.apollon
                         = autoRand.NextDouble() - 0.5;
 
                 stream.WriteByte(System.Convert.ToByte(messageID.Start));
-                stream.Write(System.BitConverter.GetBytes(dAngularAcceleration),0,8);
-                stream.Write(System.BitConverter.GetBytes(dAngularSpeedSaturation),0,8);
-                stream.Write(System.BitConverter.GetBytes(dMaxStimDuration),0,8);
+                stream.Write(System.BitConverter.GetBytes(dAngularAcceleration), 0, 8);
+                stream.Write(System.BitConverter.GetBytes(dAngularSpeedSaturation), 0, 8);
+                stream.Write(System.BitConverter.GetBytes(dMaxStimDuration), 0, 8);
                 Console.WriteLine(
                     DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Start] with args [dAngularAcceleration:"
+                    + " - [Apollon-server-ActiveSeat] -- INFO : sended [Start] with args [dAngularAcceleration:"
                     + dAngularAcceleration
                     + "], [dAngularSpeedSaturation:"
                     + dAngularSpeedSaturation
@@ -133,7 +132,7 @@ namespace Labsim.apollon
                 stream.WriteByte(System.Convert.ToByte(messageID.Stop));
                 Console.WriteLine(
                     DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Stop]."
+                    + " - [Apollon-server-ActiveSeat] -- INFO : sended [Stop]."
                 );
 
                 // -------------------------------------------------------------------------------- //
@@ -141,7 +140,7 @@ namespace Labsim.apollon
                 stream.WriteByte(System.Convert.ToByte(messageID.Reset));
                 Console.WriteLine(
                     DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [Reset]."
+                    + " - [Apollon-server-ActiveSeat] -- INFO : sended [Reset]."
                 );
 
                 // -------------------------------------------------------------------------------- //
@@ -149,7 +148,7 @@ namespace Labsim.apollon
                 stream.WriteByte(System.Convert.ToByte(messageID.EndTrial));
                 Console.WriteLine(
                     DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [EndTrial]."
+                    + " - [Apollon-server-ActiveSeat] -- INFO : sended [EndTrial]."
                 );
 
                 // -------------------------------------------------------------------------------- //
@@ -159,7 +158,7 @@ namespace Labsim.apollon
             stream.WriteByte(System.Convert.ToByte(messageID.EndSession));
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-server] -- INFO : sended [EndSession]."
+                + " - [Apollon-server-ActiveSeat] -- INFO : sended [EndSession]."
             );
 
             // end

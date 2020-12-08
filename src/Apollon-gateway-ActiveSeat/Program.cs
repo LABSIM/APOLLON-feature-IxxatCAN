@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Labsim.apollon.feature.IxxatCAN
+namespace Labsim.apollon.gateway.ActiveSeat
 {
     class Program
     {
@@ -20,10 +20,10 @@ namespace Labsim.apollon.feature.IxxatCAN
         {
 
             // instantiate backend implementation
-            AbstractCANHandle handle = new handle.ActiveSeatHandle();
+            feature.IxxatCAN.AbstractCANHandle handle = new feature.IxxatCAN.handle.ActiveSeatHandle();
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-client] -- INFO : instantiated generic CANHandle"
+                + " - [Apollon-gateway-ActiveSeat] -- INFO : instantiated ActiveSeat IxxatCAN handle"
             );
 
             // initialize it 
@@ -31,11 +31,11 @@ namespace Labsim.apollon.feature.IxxatCAN
             handle.InitSocket(0);
             Console.WriteLine(
                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                + " - [Apollon-feature-IxxatCAN-client] -- INFO : backend CANHandle intialized"
+                + " - [Apollon-gateway-ActiveSeat] -- INFO : backend IxxatCAN handle intialized"
             );
 
             // instantiate a client connection with the first non-ipv6 address
-            Int32 
+            Int32
                 client_port = 0,    // any
                 server_port = 8888; // same as server
             System.Net.IPEndPoint localEndPoint
@@ -61,7 +61,7 @@ namespace Labsim.apollon.feature.IxxatCAN
 
             // double slot
             byte[] data = new byte[256];
-            
+
             // until end session
             do
             {
@@ -69,17 +69,17 @@ namespace Labsim.apollon.feature.IxxatCAN
                 // Wait for 'messages' from the unity app server.
                 Console.WriteLine(
                     DateTime.Now.ToString("HH:mm:ss.ffffff")
-                    + " - [Apollon-feature-IxxatCAN-client] -- INFO : Wait for messages..."
+                    + " - [Apollon-gateway-ActiveSeat] -- INFO : Wait for messages..."
                 );
 
                 // Read the batch of the TcpServer response bytes.
-                switch((messageID)System.Convert.ToInt16(stream.ReadByte()))
+                switch ((messageID)System.Convert.ToInt16(stream.ReadByte()))
                 {
                     case messageID.BeginSession:
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : received [BeginSession]."
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : received [BeginSession]."
                             );
                             //(handle as handle.ActiveSeatHandle).BeginSession();
                         }
@@ -88,7 +88,7 @@ namespace Labsim.apollon.feature.IxxatCAN
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : received [BeginTrial]."
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : received [BeginTrial]."
                             );
                             //(handle as handle.ActiveSeatHandle).BeginTrial();
                         }
@@ -104,33 +104,34 @@ namespace Labsim.apollon.feature.IxxatCAN
                                 /* rad -> deg */ * (180.0 / System.Math.PI)
                                 /* trigo. way */ * -1.0;
 
-                            /* 2nd - [ in: rad/s (SI) | out: deg/s ] */
+                            /* 2nd - [ in: rad/s (SI) | out: s ] */
                             stream.Read(data, 0, 8);
-                            System.Double dAngularSpeedSaturation
-                                /* extract    */ = System.BitConverter.ToDouble(data, 0)
-                                /* rad -> deg */ * (180.0 / System.Math.PI)
-                                /* trigo. way */ * -1.0;
+                            System.Double dDeltaStimDuration
+                                /* extract        */ = System.BitConverter.ToDouble(data, 0)
+                                /* rad -> deg     */ * (180.0 / System.Math.PI)
+                                /* trigo. way     */ * -1.0
+                                /* accel duration */ / dAngularAcceleration;
 
                             /* 3rd - [ in: ms (SI) | out: s ] */
                             stream.Read(data, 0, 8);
-                            System.Double dMaxStimDuration 
+                            System.Double dMaxStimDuration
                                 /* extract */ = System.BitConverter.ToDouble(data, 0)
                                 /* ms -> s */ * 1000.0;
 
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : received [Start] with args [dAngularAcceleration:"
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : received [Start] with args [dAngularAcceleration:"
                                 + dAngularAcceleration
-                                + "], [dAngularSpeedSaturation:"
-                                + dAngularSpeedSaturation
+                                + "], [dDeltaStimDuration:"
+                                + dDeltaStimDuration
                                 + "], [dMaxStimDuration:"
                                 + dMaxStimDuration
                                 + "] !"
                             );
 
-                            (handle as handle.ActiveSeatHandle).Start(
+                            (handle as feature.IxxatCAN.handle.ActiveSeatHandle).Start(
                                 dAngularAcceleration,
-                                dAngularSpeedSaturation,
+                                dDeltaStimDuration,
                                 dMaxStimDuration
                             );
 
@@ -140,7 +141,7 @@ namespace Labsim.apollon.feature.IxxatCAN
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : received [Stop]."
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : received [Stop]."
                             );
                             //(handle as handle.ActiveSeatHandle).Stop();
                         }
@@ -149,7 +150,7 @@ namespace Labsim.apollon.feature.IxxatCAN
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : received [Reset]."
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : received [Reset]."
                             );
                             //(handle as handle.ActiveSeatHandle).Reset();
                         }
@@ -158,7 +159,7 @@ namespace Labsim.apollon.feature.IxxatCAN
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : received [EndTrial]."
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : received [EndTrial]."
                             );
                             //(handle as handle.ActiveSeatHandle).EndTrial();
                         }
@@ -167,7 +168,7 @@ namespace Labsim.apollon.feature.IxxatCAN
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : received [EndSession]."
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : received [EndSession]."
                             );
                             //(handle as handle.ActiveSeatHandle).EndSession();
                             bEndSession = true;
@@ -177,7 +178,7 @@ namespace Labsim.apollon.feature.IxxatCAN
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- INFO : waiting for fresh data."
+                                + " - [Apollon-gateway-ActiveSeat] -- INFO : waiting for fresh data."
                             );
                         }
                         break;
@@ -185,13 +186,13 @@ namespace Labsim.apollon.feature.IxxatCAN
                         {
                             Console.WriteLine(
                                 DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                + " - [Apollon-feature-IxxatCAN-client] -- ERROR : received [UNKNOWN]."
+                                + " - [Apollon-gateway-ActiveSeat] -- ERROR : received [UNKNOWN]."
                             );
                             bEndSession = true;
                         }
                         break;
                 } /* switch() */
-               
+
             } while (!bEndSession);
 
             // stop
@@ -202,5 +203,5 @@ namespace Labsim.apollon.feature.IxxatCAN
         } /* static Main */
 
     } /* class Program */
-  
+
 }/* namespace */

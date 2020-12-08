@@ -31,8 +31,8 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
             {
 
                 APOLLON_EVENT_ARG_ANGULAR_ACCELERATION = 0, // associated with APOLLON_EVENT_START event to provide accel value
-                APOLLON_EVENT_ARG_ANGULAR_SPEED_SATURATION = 1, // associated with APOLLON_EVENT_START event to provide speed value
-                APOLLON_EVENT_ARG_MAX_STIM_DURATION = 2, // associated with APOLLON_EVENT_START event to provide duration value
+                APOLLON_EVENT_ARG_DELTA_STIM_DURATION = 1, // associated with APOLLON_EVENT_START event to provide delta duration value (end accel)
+                APOLLON_EVENT_ARG_MAX_STIM_DURATION = 2, // associated with APOLLON_EVENT_START event to provide max duration value
                 APOLLON_EVENT_ARG_ACQUITTAL = 4, // associated with APOLLON_EVENT_START event to provide acquittal
                 APOLLON_EVENT_ARG_UNKNOWN
 
@@ -216,7 +216,7 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
 
         } /* EndSession() */
 
-        public void Start(double AngularAcceleration, double AngularSpeedSaturation, double MaxStimDuration)
+        public void Start(double AngularAcceleration, double DeltaStimDuration, double MaxStimDuration)
         {
 
             // build up the transmitted data
@@ -245,12 +245,12 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
 
             // Prepare 6 bytes array to send (x3 times) :
             // 0x04 0x00 bytes representation of (AngularAcceleration)
-            // 0x04 0x01 bytes representation of (AngularSpeedSaturation)
+            // 0x04 0x01 bytes representation of (DeltaStimDuration)
             // 0x04 0x02 bytes representation of (MaxStimDuration)
 
             byte[] 
                 angular_acceleration_msg = new byte[1 + 1 + 4],
-                angular_speed_saturation_msg = new byte[1 + 1 + 4],
+                delta_stim_duration_msg = new byte[1 + 1 + 4],
                 max_stim_duration_msg = new byte[1 + 1 + 4],
                 acquittal_msg = new byte[1 + 1];
 
@@ -278,7 +278,7 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
                 srcOffset:
                     0,
                 dst:
-                    angular_speed_saturation_msg,
+                    delta_stim_duration_msg,
                 dstOffset:
                     0,
                 count:
@@ -332,12 +332,12 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
             System.Buffer.BlockCopy(
                 src:
                     new byte[] {
-                        (byte)CAN.EventArgType.APOLLON_EVENT_ARG_ANGULAR_SPEED_SATURATION // 0x01 : it's speed
+                        (byte)CAN.EventArgType.APOLLON_EVENT_ARG_DELTA_STIM_DURATION // 0x01 : it's delta
                     },
                 srcOffset:
                     0,
                 dst:
-                    angular_speed_saturation_msg,
+                    delta_stim_duration_msg,
                 dstOffset:
                     1,
                 count:
@@ -394,13 +394,13 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
                 src:
                     System.BitConverter.GetBytes(
                         System.Convert.ToSingle(
-                            AngularSpeedSaturation
+                            DeltaStimDuration
                         )
                     ),
                 srcOffset:
                     0,
                 dst:
-                    angular_speed_saturation_msg,
+                    delta_stim_duration_msg,
                 dstOffset:
                     2,
                 count:
@@ -424,10 +424,12 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
             );
 
             // send messages
-            //System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
             this.TransmitRawData(angular_acceleration_msg);
-            this.TransmitRawData(angular_speed_saturation_msg);
+            System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
+            this.TransmitRawData(delta_stim_duration_msg);
+            System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
             this.TransmitRawData(max_stim_duration_msg);
+            System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
             this.TransmitRawData(acquittal_msg);
 
         } /* EndSession() */

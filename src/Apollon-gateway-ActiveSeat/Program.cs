@@ -119,7 +119,7 @@ namespace Labsim.apollon.gateway.ActiveSeat
                                         stream.Read(data, 0, 8);
                                         System.Double dMaxStimDuration
                                             /* extract */ = System.BitConverter.ToDouble(data, 0)
-                                            /* ms -> s */ * 1000.0;
+                                            /* ms -> s */ / 1000.0;
 
                                         Console.WriteLine(
                                             DateTime.Now.ToString("HH:mm:ss.ffffff")

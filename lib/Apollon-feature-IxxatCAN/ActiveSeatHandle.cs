@@ -425,11 +425,11 @@ namespace Labsim.apollon.feature.IxxatCAN.handle
 
             // send messages
             this.TransmitRawData(angular_acceleration_msg);
-            //System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
+            System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
             this.TransmitRawData(delta_stim_duration_msg);
-            //System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
+            System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
             this.TransmitRawData(max_stim_duration_msg);
-            //System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
+            System.Threading.Thread.Sleep(10); //Wait 10ms just to be sure can bus transmition is complete
             this.TransmitRawData(acquittal_msg);
 
         } /* EndSession() */

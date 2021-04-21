@@ -109,11 +109,10 @@ namespace Labsim.apollon.gateway.ActiveSeat
 
                                         /* 2nd - [ in: rad/s (SI) | out: s ] */
                                         stream.Read(data, 0, 8);
-                                        System.Double dDeltaStimDuration
+                                        System.Double dAngularVelocity
                                             /* extract        */ = System.BitConverter.ToDouble(data, 0)
                                             /* rad -> deg     */ * (180.0 / System.Math.PI)
-                                            /* trigo. way     */ * -1.0
-                                            /* accel duration */ / dAngularAcceleration;
+                                            /* trigo. way     */ * -1.0;
 
                                         /* 3rd - [ in: ms (SI) | out: s ] */
                                         stream.Read(data, 0, 8);
@@ -123,19 +122,19 @@ namespace Labsim.apollon.gateway.ActiveSeat
 
                                         Console.WriteLine(
                                             DateTime.Now.ToString("HH:mm:ss.ffffff")
-                                            + " - [Apollon-gateway-ActiveSeat] -- INFO : received [Start] with args [dAngularAcceleration:"
-                                            + dAngularAcceleration
-                                            + "], [dDeltaStimDuration:"
-                                            + dDeltaStimDuration
-                                            + "], [dMaxStimDuration:"
+                                            + " - [Apollon-gateway-ActiveSeat] -- INFO : received [Start] with args ["
+                                            + dAngularVelocity
+                                            + "], ["
+                                            + dAngularVelocity / dAngularAcceleration
+                                            + "], ["
                                             + dMaxStimDuration
                                             + "] !"
                                         );
-
+                                        
                                         (handle as feature.IxxatCAN.handle.ActiveSeatHandle).Start(
-                                            dAngularAcceleration,
-                                            dDeltaStimDuration,
-                                            dMaxStimDuration
+                                            /* ISM - deg/s     */ dAngularVelocity,
+                                            /* ISM - rise time */ dAngularVelocity / dAngularAcceleration,
+                                            /* ISM - max time  */ dMaxStimDuration
                                         );
 
                                     }
